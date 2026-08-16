@@ -3,11 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, UtensilsCrossed, Tag, ClipboardList,
   Users, CreditCard, FileText, BarChart3, LogOut, ChevronRight,
-  ListOrdered, Settings
+  ListOrdered, Gift
 } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/rewards', label: 'Kitchen & Rewards', icon: Gift },
   { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { to: '/admin/queue', label: 'Live Queue', icon: ListOrdered },
   { to: '/admin/foods', label: 'Food Items', icon: UtensilsCrossed },
@@ -30,14 +31,13 @@ export default function AdminLayout({ children, title }) {
       {/* Sidebar */}
       <div className="admin-sidebar">
         {/* Logo */}
-        <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 8,
-              background: 'linear-gradient(135deg, #E7A83B, #F28C28)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '0.9rem', color: '#151515'
-            }}>R</div>
+            <img
+              src="/images/logo.png"
+              alt="RTS Cafe Logo"
+              style={{ height: 38, width: 'auto', borderRadius: 6, objectFit: 'contain' }}
+            />
             <div>
               <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '0.95rem', color: '#fff' }}>RTS Admin</div>
               <div style={{ fontSize: '0.7rem', color: '#A8A8A8' }}>Control Panel</div>

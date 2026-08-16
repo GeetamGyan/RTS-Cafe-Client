@@ -18,6 +18,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import TrackOrder from './pages/TrackOrder';
 import OrderHistory from './pages/OrderHistory';
 import Profile from './pages/Profile';
+import Rewards from './pages/Rewards';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -29,6 +30,7 @@ import AdminUsers from './pages/admin/Users';
 import AdminPayments from './pages/admin/Payments';
 import AdminCMS from './pages/admin/CMS';
 import AdminAnalytics from './pages/admin/Analytics';
+import AdminRewards from './pages/admin/AdminRewards';
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -60,9 +62,11 @@ function AppRoutes() {
       <Route path="/track/:orderId" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/rewards" element={<ProtectedRoute><Rewards /></ProtectedRoute>} />
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/rewards" element={<AdminRoute><AdminRewards /></AdminRoute>} />
       <Route path="/admin/foods" element={<AdminRoute><AdminFoods /></AdminRoute>} />
       <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
       <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />

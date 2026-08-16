@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CreditCard, Smartphone, Building2, Wallet, ShieldCheck } from 'lucide-react';
+import { CreditCard, Smartphone, Building2, Wallet, ShieldCheck, AlertOctagon } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import KitchenStatusTicker from '../components/KitchenStatusTicker';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
@@ -21,22 +22,38 @@ export default function Payment() {
   const [selectedMethod, setSelectedMethod] = useState('upi');
   const [loading, setLoading] = useState(true);
   const [paymentState, setPaymentState] = useState('idle'); // idle | processing | done
+  const [isKitchenOpen, setIsKitchenOpen] = useState(true);
 
   useEffect(() => {
-    api.get(`/orders/${orderId}`).then(r => setOrder(r.data.data)).catch(() => navigate('/cart')).finally(() => setLoading(false));
-  }, [orderId]);
+    Promise.all([
+      api.get(`/orders/${orderId}`),
+      api.get('/kitchen/status')
+    ])
+      .then(([orderRes, kitchenRes]) => {
+        setOrder(orderRes.data.data);
+        if (kitchenRes.data?.data?.kitchenStatus === 'CLOSED') {
+          setIsKitchenOpen(false);
+        }
+      })
+      .catch(() => navigate('/cart'))
+      .finally(() => setLoading(false));
+  }, [orderId, navigate]);
 
   const handlePay = async (simulateSuccess = true) => {
+    if (!isKitchenOpen) {
+      return toast.error('Kitchen is currently closed. Payment cannot be created.');
+    }
+
     setPaymentState('processing');
     try {
-      // Initiate payment
+      // Initiate payment (backend re-checks kitchen status)
       const initRes = await api.post('/payments/initiate', { orderId, paymentMethod: selectedMethod });
       const { paymentId } = initRes.data.data;
 
       // Simulate 2s payment processing
       await new Promise(r => setTimeout(r, 2000));
 
-      // Verify
+      // Verify (backend re-checks kitchen status for race conditions)
       const verifyRes = await api.post('/payments/verify', { paymentId, success: simulateSuccess });
 
       if (simulateSuccess && verifyRes.data.success) {
@@ -63,10 +80,23 @@ export default function Payment() {
   return (
     <div style={{ minHeight: '100vh', background: '#151515', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
+      <KitchenStatusTicker />
+
       <main style={{ flex: 1, maxWidth: 600, margin: '0 auto', padding: '40px 24px', width: '100%' }}>
         <p className="section-tag" style={{ marginBottom: 6 }}>SECURE CHECKOUT</p>
         <h1 className="section-title" style={{ marginBottom: 8 }}>Complete Payment</h1>
         <p style={{ color: '#A8A8A8', marginBottom: 32, fontSize: '0.9rem' }}>to Start Your Order</p>
+
+        {/* Kitchen Closed Alert */}
+        {!isKitchenOpen && (
+          <div style={{ background: 'rgba(239,68,68,0.15)', border: '2px solid #EF4444', borderRadius: 20, padding: 20, marginBottom: 24, textAlign: 'center' }}>
+            <AlertOctagon size={32} color="#EF4444" style={{ margin: '0 auto 8px' }} />
+            <h3 style={{ color: '#EF4444', fontWeight: 900, fontSize: '1.1rem', margin: '0 0 6px' }}>Kitchen Closed</h3>
+            <p style={{ color: '#ddd', fontSize: '0.85rem', margin: 0 }}>
+              The kitchen has just closed. Payments are currently blocked.
+            </p>
+          </div>
+        )}
 
         {/* Amount card */}
         <div style={{ background: 'linear-gradient(135deg, #E7A83B20, #F28C2815)', border: '1px solid rgba(231,168,59,0.3)', borderRadius: 20, padding: 24, marginBottom: 24, textAlign: 'center' }}>
@@ -87,12 +117,12 @@ export default function Payment() {
         <div style={{ background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 20, marginBottom: 24 }}>
           <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '0.5px', textTransform: 'uppercase', margin: '0 0 16px' }}>Payment Method</h3>
           {PAYMENT_METHODS.map(({ id, icon: Icon, label, desc }) => (
-            <button key={id} onClick={() => setSelectedMethod(id)} style={{
+            <button key={id} onClick={() => setSelectedMethod(id)} disabled={!isKitchenOpen} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-              padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+              padding: '14px 16px', borderRadius: 12, cursor: isKitchenOpen ? 'pointer' : 'not-allowed',
               background: selectedMethod === id ? 'rgba(231,168,59,0.08)' : 'transparent',
               border: `1.5px solid ${selectedMethod === id ? '#E7A83B' : 'transparent'}`,
-              marginBottom: 8, transition: 'all 0.2s'
+              marginBottom: 8, transition: 'all 0.2s', opacity: isKitchenOpen ? 1 : 0.5
             }}>
               <div style={{ background: '#2a2a2a', padding: 10, borderRadius: 10 }}><Icon size={18} color={selectedMethod === id ? '#E7A83B' : '#A8A8A8'} /></div>
               <div style={{ flex: 1, textAlign: 'left' }}>
@@ -114,7 +144,11 @@ export default function Payment() {
         </div>
 
         {/* Pay button */}
-        {paymentState === 'processing' ? (
+        {!isKitchenOpen ? (
+          <button disabled style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1rem', background: '#333', color: '#888', border: 'none', borderRadius: 14, fontWeight: 800, cursor: 'not-allowed' }}>
+            🔴 Kitchen Closed · Payment Blocked
+          </button>
+        ) : paymentState === 'processing' ? (
           <div style={{ background: '#1e1e1e', borderRadius: 14, padding: 24, textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ width: 40, height: 40, border: '3px solid #2a2a2a', borderTopColor: '#E7A83B', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 1s linear infinite' }} />
             <p style={{ color: '#E7A83B', fontWeight: 700, margin: '0 0 4px' }}>Processing Payment...</p>

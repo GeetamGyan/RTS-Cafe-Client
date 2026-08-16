@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, MapPin, Clock } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Star, Gift } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import api from '../services/api';
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
@@ -11,13 +12,23 @@ export default function Navbar() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [points, setPoints] = useState(null);
 
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/menu', label: 'Menu' },
     { to: '/orders', label: 'My Orders' },
+    { to: '/rewards', label: 'Rewards ⭐' },
     { to: '/location', label: 'Location' },
   ];
+
+  useEffect(() => {
+    if (user) {
+      api.get('/loyalty')
+        .then(r => setPoints(r.data.data.pointsBalance))
+        .catch(() => {});
+    }
+  }, [user, location.pathname]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -28,12 +39,11 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
           {/* Logo */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg, #E7A83B, #F28C28)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '1rem', color: '#151515'
-            }}>R</div>
+            <img
+              src="/images/logo.png"
+              alt="RTS Cafe Logo"
+              style={{ height: 42, width: 'auto', borderRadius: 8, objectFit: 'contain' }}
+            />
             <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.1rem', color: '#fff', letterSpacing: '-0.5px' }}>
               RTS <span style={{ color: '#E7A83B' }}>CAFE</span>
             </span>
@@ -64,6 +74,30 @@ export default function Navbar() {
               <Search size={18} />
             </Link>
 
+            {/* Loyalty Widget */}
+            {user && (
+              <Link
+                to="/rewards"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px',
+                  background: 'rgba(231,168,59,0.12)',
+                  border: '1px solid rgba(231,168,59,0.3)',
+                  borderRadius: 100,
+                  textDecoration: 'none',
+                  color: '#E7A83B',
+                  fontSize: '0.85rem',
+                  fontWeight: 800,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Star size={15} fill="#E7A83B" color="#E7A83B" />
+                <span>{points !== null ? points : '0'}</span>
+              </Link>
+            )}
+
             {user ? (
               <div style={{ position: 'relative' }}>
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)} style={{
@@ -83,6 +117,7 @@ export default function Navbar() {
                   }}>
                     {[
                       { to: '/profile', label: 'Profile' },
+                      { to: '/rewards', label: `My Rewards ⭐ ${points !== null ? points : 0}` },
                       { to: '/orders', label: 'My Orders' },
                     ].map(l => (
                       <Link key={l.to} to={l.to} onClick={() => setUserMenuOpen(false)} style={{

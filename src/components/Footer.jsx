@@ -10,12 +10,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: 'linear-gradient(135deg, #E7A83B, #F28C28)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '1rem', color: '#151515'
-              }}>R</div>
+              <img
+                src="/images/logo.png"
+                alt="RTS Cafe Logo"
+                style={{ height: 42, width: 'auto', borderRadius: 8, objectFit: 'contain' }}
+              />
               <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.1rem', color: '#fff' }}>
                 RTS <span style={{ color: '#E7A83B' }}>CAFE</span>
               </span>

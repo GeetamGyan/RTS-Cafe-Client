@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, CreditCard, ChefHat, Ticket, MapPin, Clock, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, CreditCard, ChefHat, Ticket, MapPin, Clock, Star, ChevronRight, Gift } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import KitchenStatusTicker from '../components/KitchenStatusTicker';
 import Footer from '../components/Footer';
 import FoodCard from '../components/FoodCard';
 import FloatingCart from '../components/FloatingCart';
@@ -56,6 +57,9 @@ export default function Home() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
+      {/* ===== CONTINUOUS KITCHEN STATUS TICKER ===== */}
+      <KitchenStatusTicker />
+
       {/* ===== ANNOUNCEMENTS BAR ===== */}
       {announcements.length > 0 && (
         <div style={{ background: 'linear-gradient(90deg, #E7A83B20, #F28C2820)', borderBottom: '1px solid rgba(231,168,59,0.2)', padding: '10px 20px', textAlign: 'center' }}>
@@ -73,7 +77,7 @@ export default function Home() {
             <div className="animate-fade-in">
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(231,168,59,0.1)', border: '1px solid rgba(231,168,59,0.25)', borderRadius: 100, padding: '6px 14px', marginBottom: 24 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-                <span style={{ color: '#E7A83B', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.5px' }}>RTS CAFE IS OPEN NOW</span>
+                <span style={{ color: '#E7A83B', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.5px' }}>RTS CAFE PRE-ORDERING PLATFORM</span>
               </div>
 
               <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', lineHeight: 1.1, margin: '0 0 20px', color: '#fff' }}>
@@ -83,15 +87,15 @@ export default function Home() {
               </h1>
 
               <p style={{ color: '#A8A8A8', fontSize: '1.05rem', lineHeight: 1.7, margin: '0 0 36px', maxWidth: 440 }}>
-                Pre-order your favourite food from RTS Cafe, pay online, and collect it when it's ready. No standing in line.
+                Pre-order your favourite food from RTS Cafe, pay online, and collect it when it's ready. Earn loyalty points on every order!
               </p>
 
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <Link to="/menu" className="btn-primary" style={{ padding: '14px 28px', fontSize: '0.95rem' }}>
                   Order Now <ArrowRight size={18} />
                 </Link>
-                <Link to="/menu" className="btn-secondary" style={{ padding: '14px 28px', fontSize: '0.95rem' }}>
-                  View Menu
+                <Link to="/rewards" className="btn-secondary" style={{ padding: '14px 28px', fontSize: '0.95rem' }}>
+                  My Rewards ⭐
                 </Link>
               </div>
 
@@ -101,6 +105,7 @@ export default function Home() {
                   { icon: '⚡', label: 'Quick Order' },
                   { icon: '💳', label: 'Pay Online' },
                   { icon: '🎟️', label: 'Skip Queue' },
+                  { icon: '⭐', label: 'Earn Points' },
                 ].map(b => (
                   <div key={b.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span>{b.icon}</span>
@@ -110,27 +115,76 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: Visual food collage */}
+            {/* Right: Craving Food Visual Collage */}
             <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="animate-slide-up">
-              {['🍔', '🍟', '🥟', '☕'].map((emoji, i) => (
-                <div key={i} style={{
-                  background: `linear-gradient(135deg, ${['#2a1f0a', '#0a1a2a', '#1a0a0a', '#0a1a0a'][i]}, #1e1e1e)`,
-                  borderRadius: 20,
-                  aspectRatio: '1',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  fontSize: '3rem',
-                  transform: i % 2 === 0 ? 'translateY(-8px)' : 'translateY(8px)',
-                  transition: 'transform 0.3s',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }} onClick={() => navigate('/menu')}>
-                  <div style={{ fontSize: '3.5rem', marginBottom: 8 }}>{emoji}</div>
-                  <div style={{ color: '#E7A83B', fontSize: '0.75rem', fontWeight: 700 }}>
-                    {['Burger', 'Fries', 'Momos', 'Coffee'][i]}
+              {[
+                { name: 'Burger', img: '/images/burger.png', category: 'Veg Burger' },
+                { name: 'Fries', img: '/images/fries.png', category: 'Fries' },
+                { name: 'Momos', img: '/images/momos.jpg', category: 'Veg Momos' },
+                { name: 'Coffee', img: '/images/coffee.png', category: 'Thick Cold Coffee' },
+              ].map((item, i) => (
+                <div
+                  key={item.name}
+                  style={{
+                    borderRadius: 22,
+                    aspectRatio: '1',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    border: '1.5px solid rgba(231,168,59,0.25)',
+                    boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+                    transform: i % 2 === 0 ? 'translateY(-10px)' : 'translateY(10px)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: 'pointer',
+                    background: '#1a1a1a',
+                  }}
+                  onClick={() => navigate('/menu')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = `${i % 2 === 0 ? 'translateY(-14px)' : 'translateY(6px)'} scale(1.03)`;
+                    e.currentTarget.style.borderColor = '#E7A83B';
+                    e.currentTarget.style.boxShadow = '0 16px 40px rgba(231,168,59,0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = i % 2 === 0 ? 'translateY(-10px)' : 'translateY(10px)';
+                    e.currentTarget.style.borderColor = 'rgba(231,168,59,0.25)';
+                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.5)';
+                  }}
+                >
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      display: 'block',
+                    }}
+                  />
+                  {/* Subtle dark gradient overlay */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(15,15,15,0.85) 0%, rgba(15,15,15,0.15) 50%, transparent 100%)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justify: 'flex-end',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: '#E7A83B',
+                        fontSize: '0.88rem',
+                        fontWeight: 800,
+                        fontFamily: 'Poppins, sans-serif',
+                        letterSpacing: '0.5px',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                      }}
+                    >
+                      {item.name}
+                    </span>
                   </div>
-                  <div style={{ position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(231,168,59,0.05)' }} />
                 </div>
               ))}
             </div>
@@ -148,7 +202,7 @@ export default function Home() {
             { icon: <Zap size={22} color="#E7A83B" />, title: 'Quick Ordering', desc: 'Order before reaching the cafe' },
             { icon: <CreditCard size={22} color="#E7A83B" />, title: 'Pay Online', desc: 'Secure digital payment' },
             { icon: <ChefHat size={22} color="#E7A83B" />, title: 'Freshly Prepared', desc: 'We start after payment' },
-            { icon: <Ticket size={22} color="#E7A83B" />, title: 'Skip the Queue', desc: 'Collect when ready' },
+            { icon: <Gift size={22} color="#E7A83B" />, title: 'Loyalty Rewards', desc: 'Earn 1 point per ₹10 spent' },
           ].map(f => (
             <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 20px', background: '#222', borderRadius: 14, border: '1px solid rgba(255,255,255,0.04)' }}>
               <div style={{ background: 'rgba(231,168,59,0.1)', padding: 10, borderRadius: 10, flexShrink: 0 }}>{f.icon}</div>
@@ -158,6 +212,57 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ===== REWARDS BANNER SECTION (EARN WHILE YOU EAT 🎁) ===== */}
+      <section style={{ padding: '40px 24px', background: '#151515' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e1e1e 0%, #2a2215 100%)',
+              border: '1px solid rgba(231,168,59,0.3)',
+              borderRadius: 24,
+              padding: '36px 40px',
+              display: 'flex',
+              justify: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 24,
+              boxShadow: '0 12px 32px rgba(0,0,0,0.4)',
+            }}
+          >
+            <div>
+              <p style={{ color: '#E7A83B', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', margin: '0 0 8px' }}>
+                EARN WHILE YOU EAT 🎁
+              </p>
+              <h2 style={{ fontFamily: 'Poppins, sans-serif', color: '#fff', fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', margin: '0 0 8px', lineHeight: 1.2 }}>
+                Every order earns you RTS Points.
+              </h2>
+              <p style={{ color: '#A8A8A8', margin: 0, fontSize: '0.95rem' }}>
+                Order more. Earn more. Redeem for FREE food vouchers at the end of every month!
+              </p>
+              <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
+                <span style={{ background: 'rgba(231,168,59,0.15)', color: '#E7A83B', padding: '6px 12px', borderRadius: 100, fontSize: '0.82rem', fontWeight: 700 }}>
+                  ⭐ 10 Points for every ₹100 spent
+                </span>
+                <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', padding: '6px 12px', borderRadius: 100, fontSize: '0.82rem', fontWeight: 700 }}>
+                  🎁 Free Classic Fries @ 100 Pts
+                </span>
+              </div>
+            </div>
+            <Link
+              to="/rewards"
+              className="btn-primary"
+              style={{
+                padding: '14px 28px',
+                fontSize: '0.95rem',
+                flexShrink: 0,
+              }}
+            >
+              View Rewards Menu <ArrowRight size={18} />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -214,31 +319,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== PROMO BANNER ===== */}
-      <section style={{ padding: '0 24px', background: '#151515' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #E7A83B, #F28C28)',
-            borderRadius: 24, padding: '40px 48px',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24
-          }}>
-            <div>
-              <p style={{ color: 'rgba(21,21,21,0.7)', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 8px' }}>LUNCH BREAK?</p>
-              <h2 style={{ fontFamily: 'Poppins, sans-serif', color: '#151515', fontWeight: 900, fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', margin: '0 0 8px', lineHeight: 1.2 }}>
-                Don't spend it standing in line.
-              </h2>
-              <p style={{ color: 'rgba(21,21,21,0.75)', margin: 0, fontSize: '1rem' }}>Pre-order your food now. Pick it up when it's ready.</p>
-            </div>
-            <Link to="/menu" style={{
-              background: '#151515', color: '#E7A83B', padding: '14px 28px',
-              borderRadius: 12, fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none',
-              display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
-              transition: 'all 0.2s'
-            }}>ORDER NOW <ArrowRight size={18} /></Link>
-          </div>
-        </div>
-      </section>
-
       {/* ===== HOW IT WORKS ===== */}
       <section style={{ padding: '80px 24px', background: '#1a1a1a' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
@@ -255,9 +335,6 @@ export default function Home() {
                 <div style={{ color: '#E7A83B', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '2px', marginBottom: 8 }}>STEP {step.step}</div>
                 <h3 style={{ color: '#fff', fontWeight: 800, fontSize: '1.05rem', margin: '0 0 10px' }}>{step.title}</h3>
                 <p style={{ color: '#A8A8A8', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{step.desc}</p>
-                {i < 3 && (
-                  <div style={{ position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)', color: '#E7A83B', fontSize: '1.5rem', zIndex: 2 }} className="desktop-nav">→</div>
-                )}
               </div>
             ))}
           </div>
