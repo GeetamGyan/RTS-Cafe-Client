@@ -46,7 +46,7 @@ export default function Rewards() {
 
     setRedeemingId(reward._id);
     try {
-      const { data } = await api.post(`/rewards/${reward._id}/redeem`);
+      const { data } = await api.post(`/loyalty/rewards/${reward._id}/redeem`);
       toast.success('Reward Unlocked! 🎉');
       setUnlockedVoucher(data.data.redemption);
       fetchData();

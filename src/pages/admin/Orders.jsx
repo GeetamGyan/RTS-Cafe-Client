@@ -130,7 +130,7 @@ export default function Orders() {
                 </td>
                 <td style={{ fontWeight: 800 }}>₹{order.totalAmount}</td>
                 <td>
-                  <span className={`badge ${order.paymentStatus === 'paid' ? 'badge-new' : 'badge-spicy'}`}>
+                  <span className={`badge ${['paid', 'SUCCESS'].includes(order.paymentStatus) ? 'badge-new' : 'badge-spicy'}`}>
                     {order.paymentStatus?.toUpperCase()}
                   </span>
                 </td>
